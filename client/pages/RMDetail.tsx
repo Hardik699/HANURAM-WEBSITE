@@ -67,20 +67,17 @@ export default function RMDetail() {
 
   const fetchRawMaterialDetail = async () => {
     if (!id) return;
-    
+
     try {
       setLoading(true);
       const response = await fetch(`/api/raw-materials`);
       const data = await response.json();
-      
+
       if (data.success && Array.isArray(data.data)) {
         const rm = data.data.find((m: RawMaterial) => m._id === id);
         if (rm) {
           setRawMaterial(rm);
-          await Promise.all([
-            fetchVendorPrices(id),
-            fetchPriceLogs(id),
-          ]);
+          await Promise.all([fetchVendorPrices(id), fetchPriceLogs(id)]);
         } else {
           navigate("/raw-materials");
         }
@@ -132,7 +129,13 @@ export default function RMDetail() {
     const s = u.toLowerCase().trim();
     if (s.includes("kg") || s.includes("kilogram")) return "kg";
     if (s === "g" || s.includes("gram")) return "g";
-    if (s.includes("lit") || s === "l" || s.includes("ltr") || s.includes("litre")) return "L";
+    if (
+      s.includes("lit") ||
+      s === "l" ||
+      s.includes("ltr") ||
+      s.includes("litre")
+    )
+      return "L";
     if (s.includes("ml")) return "ml";
     if (s.includes("piece") || s.includes("pc") || s === "pcs") return "pcs";
     return u;
@@ -143,7 +146,9 @@ export default function RMDetail() {
       <Layout title="Loading...">
         <div className="flex items-center justify-center py-12">
           <div className="inline-block w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-600 dark:text-slate-400 ml-3 font-medium">Loading raw material...</p>
+          <p className="text-slate-600 dark:text-slate-400 ml-3 font-medium">
+            Loading raw material...
+          </p>
         </div>
       </Layout>
     );
@@ -153,7 +158,9 @@ export default function RMDetail() {
     return (
       <Layout title="Not Found">
         <div className="text-center py-12">
-          <p className="text-slate-600 dark:text-slate-400">Raw material not found</p>
+          <p className="text-slate-600 dark:text-slate-400">
+            Raw material not found
+          </p>
           <button
             onClick={() => navigate("/raw-materials")}
             className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
@@ -194,26 +201,34 @@ export default function RMDetail() {
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
                 Category
               </label>
-              <p className="text-sm text-slate-900 dark:text-white font-medium">{rawMaterial.categoryName}</p>
+              <p className="text-sm text-slate-900 dark:text-white font-medium">
+                {rawMaterial.categoryName}
+              </p>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
                 Sub Category
               </label>
-              <p className="text-sm text-slate-900 dark:text-white font-medium">{rawMaterial.subCategoryName}</p>
+              <p className="text-sm text-slate-900 dark:text-white font-medium">
+                {rawMaterial.subCategoryName}
+              </p>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
                 Unit
               </label>
-              <p className="text-sm text-slate-900 dark:text-white font-medium">{rawMaterial.unitName || "-"}</p>
+              <p className="text-sm text-slate-900 dark:text-white font-medium">
+                {rawMaterial.unitName || "-"}
+              </p>
             </div>
             {rawMaterial.hsnCode && (
               <div>
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
                   HSN Code
                 </label>
-                <p className="text-sm text-slate-900 dark:text-white font-medium">{rawMaterial.hsnCode}</p>
+                <p className="text-sm text-slate-900 dark:text-white font-medium">
+                  {rawMaterial.hsnCode}
+                </p>
               </div>
             )}
             {typeof rawMaterial.lastAddedPrice === "number" && (
@@ -222,10 +237,15 @@ export default function RMDetail() {
                   Last Price
                 </label>
                 <p className="text-sm text-teal-600 dark:text-teal-400 font-semibold">
-                  ₹{rawMaterial.lastAddedPrice.toFixed(2)}{formatUnit(rawMaterial.unitName) ? ` / ${formatUnit(rawMaterial.unitName)}` : ""}
+                  ₹{rawMaterial.lastAddedPrice.toFixed(2)}
+                  {formatUnit(rawMaterial.unitName)
+                    ? ` / ${formatUnit(rawMaterial.unitName)}`
+                    : ""}
                 </p>
                 {rawMaterial.lastVendorName && (
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">from {rawMaterial.lastVendorName}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    from {rawMaterial.lastVendorName}
+                  </p>
                 )}
               </div>
             )}
@@ -234,7 +254,9 @@ export default function RMDetail() {
                 <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
                   Last Purchase Date
                 </label>
-                <p className="text-sm text-slate-600 dark:text-slate-400">{formatDate(rawMaterial.lastPriceDate)}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  {formatDate(rawMaterial.lastPriceDate)}
+                </p>
               </div>
             )}
           </div>
@@ -281,21 +303,41 @@ export default function RMDetail() {
                   <table className="w-full min-w-[600px]">
                     <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Vendor</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Quantity</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Vendor
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Quantity
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Date
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {vendorPrices.map((vp) => (
-                        <tr key={vp._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">{vp.vendorName}</td>
-                          <td className="px-6 py-4 text-sm font-semibold text-teal-600 dark:text-teal-400">
-                            ₹{vp.price.toFixed(2)}{formatUnit(vp.unitName) ? ` / ${formatUnit(vp.unitName)}` : ""}
+                        <tr
+                          key={vp._id}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+                        >
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                            {vp.vendorName}
                           </td>
-                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{vp.quantity}</td>
-                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{formatDate(vp.addedDate)}</td>
+                          <td className="px-6 py-4 text-sm font-semibold text-teal-600 dark:text-teal-400">
+                            ₹{vp.price.toFixed(2)}
+                            {formatUnit(vp.unitName)
+                              ? ` / ${formatUnit(vp.unitName)}`
+                              : ""}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                            {vp.quantity}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                            {formatDate(vp.addedDate)}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -317,25 +359,50 @@ export default function RMDetail() {
                   <table className="w-full min-w-[800px]">
                     <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Vendor</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Old Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">New Price</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Change Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Changed By</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Vendor
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Old Price
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          New Price
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Change Date
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                          Changed By
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {priceLogs.map((log) => (
-                        <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">{log.vendorName}</td>
+                        <tr
+                          key={log._id}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+                        >
+                          <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
+                            {log.vendorName}
+                          </td>
                           <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                            ₹{log.oldPrice.toFixed(2)}{formatUnit(log.unitName) ? ` / ${formatUnit(log.unitName)}` : ""}
+                            ₹{log.oldPrice.toFixed(2)}
+                            {formatUnit(log.unitName)
+                              ? ` / ${formatUnit(log.unitName)}`
+                              : ""}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-green-600 dark:text-green-400">
-                            ₹{log.newPrice.toFixed(2)}{formatUnit(log.unitName) ? ` / ${formatUnit(log.unitName)}` : ""}
+                            ₹{log.newPrice.toFixed(2)}
+                            {formatUnit(log.unitName)
+                              ? ` / ${formatUnit(log.unitName)}`
+                              : ""}
                           </td>
-                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{formatDate(log.changeDate)}</td>
-                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{log.changedBy}</td>
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                            {formatDate(log.changeDate)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                            {log.changedBy}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
