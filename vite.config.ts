@@ -1,6 +1,7 @@
 import { defineConfig, Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { pathToFileURL } from "url";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -33,7 +34,9 @@ function expressPlugin(): Plugin {
       // This prevents static resolution of `./server` during a production build
       // (e.g. inside Docker) when the `server` folder may be omitted by the
       // build context or .dockerignore.
-      const mod = await import(path.join(__dirname, "server"));
+      // Use Vite's SSR module loader so TypeScript and aliased imports
+      // inside the `server` folder are resolved correctly during dev.
+      const mod = await server.ssrLoadModule('/server/index.ts');
       const app = await mod.createServer();
 
       // Add Express app as middleware to Vite dev server
