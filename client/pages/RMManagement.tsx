@@ -966,14 +966,6 @@ export default function RMManagement() {
                             {rm.lastPriceDate ? formatDate(rm.lastPriceDate) : "-"}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setSelectedRMForVendor(rm._id); setShowVendorPriceForm(true); }} className="p-2 hover:bg-green-100 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg transition-colors" title="Add Price" aria-label={`Add price for ${rm.name}`}><Plus className="w-4 h-4" /></button>
-                            <button onClick={() => handleViewVendorPrices(rm)} className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg transition-colors" title="View Prices" aria-label={`View prices for ${rm.name}`}><Eye className="w-4 h-4" /></button>
-                            <button onClick={() => handleEditRM(rm)} className="p-2 hover:bg-sky-100 dark:hover:bg-sky-900/20 text-sky-600 dark:text-sky-400 rounded-lg transition-colors" title="Edit" aria-label={`Edit ${rm.name}`}><Edit2 className="w-4 h-4" /></button>
-                            <button onClick={() => handleDeleteRM(rm._id)} className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg transition-colors" title="Delete raw material" aria-label={`Delete ${rm.name}`}><Trash2 className="w-4 h-4" /></button>
-                          </div>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
