@@ -122,7 +122,7 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-800/95 border-r border-slate-200 dark:border-slate-700 pt-20 sm:pt-24 overflow-y-auto z-40 transition-transform duration-300 md:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-white dark:bg-slate-800/95 border-r border-slate-200 dark:border-slate-700 overflow-y-auto z-40 transition-transform duration-300 md:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
