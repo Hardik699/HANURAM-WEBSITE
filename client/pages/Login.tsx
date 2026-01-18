@@ -93,11 +93,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col items-center justify-center p-4 sm:p-6">
-      {/* Header with DB Status */}
-      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
-        <DBStatusIndicator />
-      </div>
-
       {/* Main login container */}
       <div className="w-full max-w-sm sm:max-w-md">
         {/* Logo/Brand area */}
