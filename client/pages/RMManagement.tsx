@@ -993,18 +993,6 @@ export default function RMManagement() {
                           )}
                         </div>
                       </div>
-
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => { setSelectedRMForVendor(rm._id); setShowVendorPriceForm(true); }} className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-md" title="Add Price" aria-label={`Add price for ${rm.name}`}><Plus className="w-4 h-4" /></button>
-                          <button onClick={() => handleViewVendorPrices(rm)} className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md" title="View Prices"><Eye className="w-4 h-4" /></button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => handleViewPriceLogs(rm)} className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-md" title="View Logs"><History className="w-4 h-4" /></button>
-                          <button onClick={() => handleEditRM(rm)} className="p-2 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 rounded-md" title="Edit"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDeleteRM(rm._id)} className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md" title="Delete"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 ))}
