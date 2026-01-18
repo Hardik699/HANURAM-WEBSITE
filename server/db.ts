@@ -13,7 +13,9 @@ export async function connectDB(): Promise<boolean> {
 
   try {
     if (!MONGODB_URI) {
-      console.error("mongodb+srv://Hardik:Hardik1@cluster0.ezeb8ew.mongodb.net/?appName=Cluster0");
+      console.error(
+        "❌ MONGODB_URI environment variable is not set.\nSet it in your environment before starting the server. Example (do NOT embed real credentials in code):\nmongodb+srv://<user>:<password>@cluster0.example.mongodb.net/?retryWrites=true&w=majority"
+      );
       return false;
     }
     connectionStatus = "connecting";
