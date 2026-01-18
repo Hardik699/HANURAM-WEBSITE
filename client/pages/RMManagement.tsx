@@ -979,7 +979,7 @@ export default function RMManagement() {
               </div>
 
               <div className="block sm:hidden px-4 py-4 space-y-3">
-                {filteredRawMaterials.map((rm) => (
+                {paginatedMaterials.map((rm) => (
                   <div key={rm._id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
