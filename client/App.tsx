@@ -12,6 +12,7 @@ import CreateSubCategory from "./pages/CreateSubCategory";
 import CreateUnit from "./pages/CreateUnit";
 import CreateVendor from "./pages/CreateVendor";
 import RMManagement from "./pages/RMManagement";
+import RMDetail from "./pages/RMDetail";
 import RMCManagement from "./pages/RMCManagement";
 import NotFound from "./pages/NotFound";
 
