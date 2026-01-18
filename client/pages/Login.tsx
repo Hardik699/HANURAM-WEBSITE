@@ -8,7 +8,6 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import { DBStatusIndicator } from "@/components/DBStatusIndicator";
 
 export default function Login() {
   const navigate = useNavigate();
