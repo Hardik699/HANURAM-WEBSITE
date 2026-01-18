@@ -12,6 +12,7 @@ import CreateSubCategory from "./pages/CreateSubCategory";
 import CreateUnit from "./pages/CreateUnit";
 import CreateVendor from "./pages/CreateVendor";
 import RMManagement from "./pages/RMManagement";
+import RMDetail from "./pages/RMDetail";
 import RMCManagement from "./pages/RMCManagement";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/create-unit" element={<CreateUnit />} />
           <Route path="/create-vendor" element={<CreateVendor />} />
           <Route path="/raw-materials" element={<RMManagement />} />
+          <Route path="/raw-materials/:id" element={<RMDetail />} />
           <Route path="/recipe-costing" element={<RMCManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

@@ -133,6 +133,10 @@ export default function RMManagement() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [rmErrors, setRmErrors] = useState<Record<string, string>>({});
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (!token) {
@@ -632,6 +636,23 @@ export default function RMManagement() {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadResult, setUploadResult] = useState<any | null>(null);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRawMaterials.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMaterials = filteredRawMaterials.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
   // Handle file selection and upload
   useEffect(() => {
     const input = uploadInputRef.current;
@@ -644,7 +665,10 @@ export default function RMManagement() {
       try {
         const fd = new FormData();
         fd.append("file", file, file.name);
-        const res = await fetch("/api/raw-materials/upload", { method: "POST", body: fd });
+        const res = await fetch("/api/raw-materials/upload", {
+          method: "POST",
+          body: fd,
+        });
         const data = await res.json();
         if (!res.ok || !data.success) {
           setMessageType("error");
@@ -652,15 +676,24 @@ export default function RMManagement() {
           setUploadResult(data.data || null);
         } else {
           setMessageType("success");
-          setMessage(`Upload complete — created: ${data.data.created}, updated: ${data.data.updated}, skipped: ${data.data.skipped.length}`);
+          setMessage(
+            `Upload complete — created: ${data.data.created}, updated: ${data.data.updated}, skipped: ${data.data.skipped.length}`,
+          );
           setUploadResult(data.data);
           // if skipped rows exist, generate an errors CSV and download
-          if (Array.isArray(data.data.skipped) && data.data.skipped.length > 0) {
-            const header = ["row","reason","data"];
+          if (
+            Array.isArray(data.data.skipped) &&
+            data.data.skipped.length > 0
+          ) {
+            const header = ["row", "reason", "data"];
             const lines = [header.join(",")];
             for (const s of data.data.skipped) {
               const rowJson = JSON.stringify(s.data || {});
-              const line = [s.row, `"${(s.reason || "").replace(/"/g, '""') }"`, `"${rowJson.replace(/"/g, '""')}"`];
+              const line = [
+                s.row,
+                `"${(s.reason || "").replace(/"/g, '""')}"`,
+                `"${rowJson.replace(/"/g, '""')}"`,
+              ];
               lines.push(line.join(","));
             }
             const blob = new Blob([lines.join("\n")], { type: "text/csv" });
@@ -704,7 +737,13 @@ export default function RMManagement() {
     const s = u.toLowerCase().trim();
     if (s.includes("kg") || s.includes("kilogram")) return "kg";
     if (s === "g" || s.includes("gram")) return "g";
-    if (s.includes("lit") || s === "l" || s.includes("ltr") || s.includes("litre")) return "L";
+    if (
+      s.includes("lit") ||
+      s === "l" ||
+      s.includes("ltr") ||
+      s.includes("litre")
+    )
+      return "L";
     if (s.includes("ml")) return "ml";
     if (s.includes("piece") || s.includes("pc") || s === "pcs") return "pcs";
     return u; // fallback to original
@@ -713,18 +752,9 @@ export default function RMManagement() {
   return (
     <Layout title="RM Management">
       <>
-      <div className="space-y-6">
-        {/* Header Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Raw Materials
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              Manage your raw materials inventory
-            </p>
-          </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="space-y-6">
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 w-full">
             <button
               onClick={() => setShowAddRMForm(true)}
               className="btn btn-primary whitespace-nowrap flex items-center gap-2"
@@ -743,10 +773,9 @@ export default function RMManagement() {
               />
             </div>
           </div>
-        </div>
-        
-        {/* Upload / Download Toolbar */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+
+          {/* Upload / Download Toolbar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <button
               onClick={async () => {
                 try {
@@ -772,7 +801,11 @@ export default function RMManagement() {
               ⬇ Download CSV
             </button>
 
-            <a href="/demo-rm-create.csv" download className="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+            <a
+              href="/demo-rm-create.csv"
+              download
+              className="inline-flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+            >
               ⬇ Demo CSV
             </a>
           </div>
@@ -875,9 +908,6 @@ export default function RMManagement() {
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
               <div className="w-1 h-1 rounded-full bg-teal-500"></div>
               Raw Materials List
-              <span className="ml-auto text-sm font-normal text-slate-500 dark:text-slate-400">
-                {filteredRawMaterials.length} items
-              </span>
             </h2>
           </div>
 
@@ -891,8 +921,18 @@ export default function RMManagement() {
           ) : filteredRawMaterials.length === 0 ? (
             <div className="p-12 text-center">
               <div className="inline-block p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mb-3">
-                <svg className="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                <svg
+                  className="w-6 h-6 text-slate-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                  />
                 </svg>
               </div>
               <p className="text-slate-600 dark:text-slate-400 font-medium">
@@ -908,42 +948,88 @@ export default function RMManagement() {
                 <table className="w-full">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Code</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Sub Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Unit</th>
-                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Last Price</th>
-                      <th className="px-6 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Code
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Sub Category
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Unit
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Last Price
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+                        Last Purchase Date
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                    {(filteredRawMaterials || []).map((rm) => (
-                      <tr key={rm._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors duration-150">
-                        <td className="px-6 py-4"><span className="inline-flex items-center gap-2 px-2.5 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-xs font-semibold">{rm.code}</span></td>
-                        <td className="px-6 py-4"><span className="text-sm font-semibold text-slate-900 dark:text-white">{rm.name}</span></td>
-                        <td className="px-6 py-4"><span className="text-sm text-slate-600 dark:text-slate-400">{rm.categoryName}</span></td>
-                        <td className="px-6 py-4"><span className="text-sm text-slate-600 dark:text-slate-400">{rm.subCategoryName}</span></td>
-                        <td className="px-6 py-4"><span className="text-sm font-medium text-slate-900 dark:text-white">{rm.unitName || "-"}</span></td>
+                    {(paginatedMaterials || []).map((rm) => (
+                      <tr
+                        key={rm._id}
+                        onClick={() => navigate(`/raw-materials/${rm._id}`)}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors duration-150 cursor-pointer"
+                      >
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-2 px-2.5 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-xs font-semibold">
+                            {rm.code}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {rm.name}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {rm.categoryName}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {rm.subCategoryName}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="text-sm font-medium text-slate-900 dark:text-white">
+                            {rm.unitName || "-"}
+                          </span>
+                        </td>
                         <td className="px-6 py-4">
                           <div className="text-sm">
                             {typeof rm.lastAddedPrice === "number" ? (
                               <div>
-                                <div className="font-semibold text-slate-900 dark:text-white">₹{rm.lastAddedPrice.toFixed(2)}{formatUnit(rm.unitName) ? ` / ${formatUnit(rm.unitName)}` : ""}</div>
-                                <div className="text-xs text-slate-500 dark:text-slate-400">{rm.lastVendorName}</div>
+                                <div className="font-semibold text-slate-900 dark:text-white">
+                                  ₹{rm.lastAddedPrice.toFixed(2)}
+                                  {formatUnit(rm.unitName)
+                                    ? ` / ${formatUnit(rm.unitName)}`
+                                    : ""}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400">
+                                  {rm.lastVendorName}
+                                </div>
                               </div>
                             ) : (
-                              <span className="text-slate-400 italic">No price</span>
+                              <span className="text-slate-400 italic">
+                                No price
+                              </span>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => { setSelectedRMForVendor(rm._id); setShowVendorPriceForm(true); }} className="p-2 hover:bg-green-100 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 rounded-lg transition-colors" title="Add Price" aria-label={`Add price for ${rm.name}`}><Plus className="w-4 h-4" /></button>
-                            <button onClick={() => handleViewVendorPrices(rm)} className="p-2 hover:bg-blue-100 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg transition-colors" title="View Prices" aria-label={`View prices for ${rm.name}`}><Eye className="w-4 h-4" /></button>
-                            <button onClick={() => handleEditRM(rm)} className="p-2 hover:bg-sky-100 dark:hover:bg-sky-900/20 text-sky-600 dark:text-sky-400 rounded-lg transition-colors" title="Edit" aria-label={`Edit ${rm.name}`}><Edit2 className="w-4 h-4" /></button>
-                            <button onClick={() => handleDeleteRM(rm._id)} className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg transition-colors" title="Delete raw material" aria-label={`Delete ${rm.name}`}><Trash2 className="w-4 h-4" /></button>
-                          </div>
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {rm.lastPriceDate
+                              ? formatDate(rm.lastPriceDate)
+                              : "-"}
+                          </span>
                         </td>
                       </tr>
                     ))}
@@ -952,38 +1038,110 @@ export default function RMManagement() {
               </div>
 
               <div className="block sm:hidden px-4 py-4 space-y-3">
-                {filteredRawMaterials.map((rm) => (
-                  <div key={rm._id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm">
+                {paginatedMaterials.map((rm) => (
+                  <div
+                    key={rm._id}
+                    onClick={() => navigate(`/raw-materials/${rm._id}`)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow duration-150"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="inline-flex items-center gap-2 px-2 py-0.5 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-xs font-semibold">{rm.code}</span>
-                          <div className="text-sm font-semibold text-slate-900 dark:text-white">{rm.name}</div>
+                          <span className="inline-flex items-center gap-2 px-2 py-0.5 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-xs font-semibold">
+                            {rm.code}
+                          </span>
+                          <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {rm.name}
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{rm.categoryName}{rm.subCategoryName ? ` • ${rm.subCategoryName}` : ""}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          {rm.categoryName}
+                          {rm.subCategoryName ? ` • ${rm.subCategoryName}` : ""}
+                        </div>
                         <div className="mt-2 text-sm">
                           {typeof rm.lastAddedPrice === "number" ? (
-                            <div className="font-semibold text-slate-900 dark:text-white">₹{rm.lastAddedPrice.toFixed(2)}{formatUnit(rm.unitName) ? ` / ${formatUnit(rm.unitName)}` : ""}</div>
+                            <div className="font-semibold text-slate-900 dark:text-white">
+                              ₹{rm.lastAddedPrice.toFixed(2)}
+                              {formatUnit(rm.unitName)
+                                ? ` / ${formatUnit(rm.unitName)}`
+                                : ""}
+                            </div>
                           ) : (
-                            <div className="text-slate-400 italic">No price</div>
+                            <div className="text-slate-400 italic">
+                              No price
+                            </div>
                           )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-end gap-2">
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => { setSelectedRMForVendor(rm._id); setShowVendorPriceForm(true); }} className="p-2 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-md" title="Add Price" aria-label={`Add price for ${rm.name}`}><Plus className="w-4 h-4" /></button>
-                          <button onClick={() => handleViewVendorPrices(rm)} className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md" title="View Prices"><Eye className="w-4 h-4" /></button>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <button onClick={() => handleViewPriceLogs(rm)} className="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-md" title="View Logs"><History className="w-4 h-4" /></button>
-                          <button onClick={() => handleEditRM(rm)} className="p-2 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 rounded-md" title="Edit"><Edit2 className="w-4 h-4" /></button>
-                          <button onClick={() => handleDeleteRM(rm._id)} className="p-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md" title="Delete"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50 dark:bg-slate-800/50">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    Items per page:
+                  </label>
+                  <select
+                    value={itemsPerPage}
+                    onChange={(e) =>
+                      handleItemsPerPageChange(Number(e.target.value))
+                    }
+                    className="px-3 py-2 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={30}>30</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-2 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ← Previous
+                  </button>
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`w-8 h-8 rounded-md text-xs font-medium transition-colors ${
+                            currentPage === pageNum
+                              ? "bg-teal-600 text-white"
+                              : "bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-2 rounded-md bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Next →
+                  </button>
+                </div>
               </div>
             </>
           )}
@@ -999,7 +1157,9 @@ export default function RMManagement() {
                     {editingRMId ? "Edit Raw Material" : "Add New Raw Material"}
                   </h3>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {editingRMId ? "Update the details below" : "Fill in the information to create a new raw material"}
+                    {editingRMId
+                      ? "Update the details below"
+                      : "Fill in the information to create a new raw material"}
                   </p>
                 </div>
                 <button
@@ -1352,7 +1512,8 @@ export default function RMManagement() {
                   Number(vendorPriceForm.totalQuantity) > 0 && (
                     <div className="p-3 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800/50 rounded-md">
                       <p className="text-xs text-teal-700 dark:text-teal-300">
-                        <span className="font-semibold">Calculated Price:</span> ₹
+                        <span className="font-semibold">Calculated Price:</span>{" "}
+                        ₹
                         {(
                           Number(vendorPriceForm.totalPrice) /
                           Number(vendorPriceForm.totalQuantity)
@@ -1436,7 +1597,9 @@ export default function RMManagement() {
 
               {vendorPrices.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 dark:text-slate-400">
-                  <p className="text-sm">No vendor prices found for this raw material.</p>
+                  <p className="text-sm">
+                    No vendor prices found for this raw material.
+                  </p>
                 </div>
               ) : (
                 <div className="overflow-x-auto table-responsive">
@@ -1459,14 +1622,17 @@ export default function RMManagement() {
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                       {(vendorPrices || []).map((vp) => (
-                        <tr key={vp._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                        <tr
+                          key={vp._id}
+                          className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+                        >
                           <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
                             {vp.vendorName}
                           </td>
                           <td className="px-6 py-4 text-sm font-semibold text-teal-600 dark:text-teal-400">
-                              {typeof vp.price === "number"
-                                ? `₹${vp.price.toFixed(2)}${formatUnit(vp.unitName) ? ` / ${formatUnit(vp.unitName)}` : formatUnit(selectedRMForPrices?.unitName) ? ` / ${formatUnit(selectedRMForPrices?.unitName)}` : ""}`
-                                : "-"}
+                            {typeof vp.price === "number"
+                              ? `₹${vp.price.toFixed(2)}${formatUnit(vp.unitName) ? ` / ${formatUnit(vp.unitName)}` : formatUnit(selectedRMForPrices?.unitName) ? ` / ${formatUnit(selectedRMForPrices?.unitName)}` : ""}`
+                              : "-"}
                           </td>
                           <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                             {vp.quantity ?? "-"}
@@ -1513,7 +1679,9 @@ export default function RMManagement() {
               <div className="flex-1 overflow-y-auto p-6">
                 {priceLogs.length === 0 ? (
                   <div className="text-center text-slate-500 dark:text-slate-400 py-12">
-                    <p className="text-sm">No price logs found for this raw material.</p>
+                    <p className="text-sm">
+                      No price logs found for this raw material.
+                    </p>
                   </div>
                 ) : (
                   <div className="overflow-x-auto table-responsive">
@@ -1542,15 +1710,28 @@ export default function RMManagement() {
                       </thead>
                       <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                         {priceLogs.map((log) => (
-                          <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                          <tr
+                            key={log._id}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"
+                          >
                             <td className="px-4 py-4 text-sm font-medium text-slate-900 dark:text-white">
                               {log.vendorName}
                             </td>
                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                              ₹{log.oldPrice.toFixed(2)}{formatUnit(log.unitName) ? ` / ${formatUnit(log.unitName)}` : formatUnit(selectedRMForLogs?.unitName) ? ` / ${formatUnit(selectedRMForLogs?.unitName)}` : ""}
+                              ₹{log.oldPrice.toFixed(2)}
+                              {formatUnit(log.unitName)
+                                ? ` / ${formatUnit(log.unitName)}`
+                                : formatUnit(selectedRMForLogs?.unitName)
+                                  ? ` / ${formatUnit(selectedRMForLogs?.unitName)}`
+                                  : ""}
                             </td>
                             <td className="px-4 py-4 text-sm font-semibold text-green-600 dark:text-green-400">
-                              ₹{log.newPrice.toFixed(2)}{formatUnit(log.unitName) ? ` / ${formatUnit(log.unitName)}` : formatUnit(selectedRMForLogs?.unitName) ? ` / ${formatUnit(selectedRMForLogs?.unitName)}` : ""}
+                              ₹{log.newPrice.toFixed(2)}
+                              {formatUnit(log.unitName)
+                                ? ` / ${formatUnit(log.unitName)}`
+                                : formatUnit(selectedRMForLogs?.unitName)
+                                  ? ` / ${formatUnit(selectedRMForLogs?.unitName)}`
+                                  : ""}
                             </td>
                             <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
                               {formatDate(log.changeDate)}
@@ -1582,7 +1763,7 @@ export default function RMManagement() {
             </div>
           </div>
         )}
-    </>
+      </>
     </Layout>
   );
 }
