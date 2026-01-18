@@ -33,8 +33,6 @@ export function Layout({ children, title, hideHeader }: LayoutProps) {
                   {title}
                 </h3>
               )}
-              <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0 ml-auto">
-              </div>
             </div>
           </div>
         </header>
