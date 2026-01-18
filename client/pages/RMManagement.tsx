@@ -133,6 +133,10 @@ export default function RMManagement() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [rmErrors, setRmErrors] = useState<Record<string, string>>({});
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (!token) {
