@@ -735,34 +735,24 @@ export default function RMManagement() {
     <Layout title="RM Management">
       <>
       <div className="space-y-6">
-        {/* Header Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Raw Materials
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              Manage your raw materials inventory
-            </p>
-          </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <button
-              onClick={() => setShowAddRMForm(true)}
-              className="btn btn-primary whitespace-nowrap flex items-center gap-2"
-              style={{ boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)" }}
-            >
-              <Plus className="w-5 h-5" />
-              <span>Add Raw Material</span>
-            </button>
-            <div className="flex items-center gap-2 ml-2">
-              <input
-                ref={useRef<HTMLInputElement | null>(null)}
-                type="file"
-                accept=".csv,text/csv"
-                className="hidden"
-                id="rm-upload-input"
-              />
-            </div>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 w-full">
+          <button
+            onClick={() => setShowAddRMForm(true)}
+            className="btn btn-primary whitespace-nowrap flex items-center gap-2"
+            style={{ boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)" }}
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add Raw Material</span>
+          </button>
+          <div className="flex items-center gap-2 ml-2">
+            <input
+              ref={useRef<HTMLInputElement | null>(null)}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              id="rm-upload-input"
+            />
           </div>
         </div>
         
