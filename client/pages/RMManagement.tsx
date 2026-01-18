@@ -983,7 +983,10 @@ export default function RMManagement() {
 
               <div className="block sm:hidden px-4 py-4 space-y-3">
                 {paginatedMaterials.map((rm) => (
-                  <div key={rm._id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm">
+                  <div
+                    key={rm._id}
+                    onClick={() => navigate(`/raw-materials/${rm._id}`)}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow duration-150">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
