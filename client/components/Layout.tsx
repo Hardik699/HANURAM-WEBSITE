@@ -43,14 +43,6 @@ export function Layout({ children, title, hideHeader }: LayoutProps) {
       {/* Main content */}
       <main className="md:ml-64 pt-20 sm:pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto fade-in-up">
-          {title && (
-            <div className="mb-8">
-              <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                {title}
-              </h2>
-              <div className="h-1 w-12 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full mt-3"></div>
-            </div>
-          )}
           {children}
         </div>
       </main>
