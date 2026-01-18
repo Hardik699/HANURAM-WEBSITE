@@ -31,6 +31,7 @@ const App = () => (
           <Route path="/create-unit" element={<CreateUnit />} />
           <Route path="/create-vendor" element={<CreateVendor />} />
           <Route path="/raw-materials" element={<RMManagement />} />
+          <Route path="/raw-materials/:id" element={<RMDetail />} />
           <Route path="/recipe-costing" element={<RMCManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
