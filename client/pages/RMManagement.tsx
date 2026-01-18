@@ -636,6 +636,23 @@ export default function RMManagement() {
   const [uploadLoading, setUploadLoading] = useState(false);
   const [uploadResult, setUploadResult] = useState<any | null>(null);
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredRawMaterials.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMaterials = filteredRawMaterials.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
   // Handle file selection and upload
   useEffect(() => {
     const input = uploadInputRef.current;
