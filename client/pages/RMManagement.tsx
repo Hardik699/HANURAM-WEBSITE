@@ -941,7 +941,10 @@ export default function RMManagement() {
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
                     {(paginatedMaterials || []).map((rm) => (
-                      <tr key={rm._id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors duration-150">
+                      <tr
+                        key={rm._id}
+                        onClick={() => navigate(`/raw-materials/${rm._id}`)}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors duration-150 cursor-pointer">
                         <td className="px-6 py-4"><span className="inline-flex items-center gap-2 px-2.5 py-1 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 rounded-full text-xs font-semibold">{rm.code}</span></td>
                         <td className="px-6 py-4"><span className="text-sm font-semibold text-slate-900 dark:text-white">{rm.name}</span></td>
                         <td className="px-6 py-4"><span className="text-sm text-slate-600 dark:text-slate-400">{rm.categoryName}</span></td>
