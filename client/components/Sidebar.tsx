@@ -126,7 +126,7 @@ export function Sidebar() {
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 pt-6 space-y-2">
           {menuItems.map((item, index) => (
             <div key={index}>
               {item.submenu ? (
