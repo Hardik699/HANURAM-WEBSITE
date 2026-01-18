@@ -897,7 +897,7 @@ export default function RMManagement() {
               <div className="w-1 h-1 rounded-full bg-teal-500"></div>
               Raw Materials List
               <span className="ml-auto text-sm font-normal text-slate-500 dark:text-slate-400">
-                {filteredRawMaterials.length} items
+                {filteredRawMaterials.length} items {totalPages > 1 && `• Page ${currentPage} of ${totalPages}`}
               </span>
             </h2>
           </div>
