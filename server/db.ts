@@ -13,7 +13,7 @@ export async function connectDB(): Promise<boolean> {
 
   try {
     if (!MONGODB_URI) {
-      console.error("❌ MONGODB_URI environment variable is not set. Aborting DB connect.");
+      console.error("mongodb+srv://Hardik:Hardik1@cluster0.ezeb8ew.mongodb.net/?appName=Cluster0");
       return false;
     }
     connectionStatus = "connecting";
